@@ -86,96 +86,56 @@ public class Operations implements OperationInterface {
 
 	}
 
-/*	@Override
+	@Override
 	public double withdraw(Person person, double balance) {
-		try (PreparedStatement ps = conn.prepareStatement("select accountNum from bankuser where accountNum=?")) {
-//			scan.nextLine();
-			System.out.println("Enter your account number");
+		try (PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")) {
+			System.out.println("Enter your account number for withdraw: ");
 			long accountNum = scan.nextLong();
 			ps.setLong(1, accountNum);
 			person.setAccountNum(accountNum);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				accountNum = rs.getLong("accountNum");
-				System.out.println("Done!");
-			} else {
-				System.err.println(
-						"It looks like the account number you entered is incorrect. Please double-check and try again.\"");
-			}
-			System.out.println("How Much do you want to withdraw");
-			balance = scan.nextDouble();
 
-			if (balance > person.getBalance()) {
-				System.out.println("You don't have money");
-				System.out.println(person.getBalance());
-			} else {
+			ResultSet rs = ps.executeQuery();
+
+			// Check if the account number exists
+			if (rs.next()) {
+				double currentBalance = rs.getDouble("balance"); // Fetch the balance from the database
+				System.out.println("Account found. Current balance: " + currentBalance);
+
+				System.out.println("Enter withdraw ammount: ");
+				balance = scan.nextDouble();
+				// Check if withdrawal amount is greater than current balance
+				if (balance > currentBalance) {
+					System.out.println("Oops! It looks like you don't have enough funds for this withdrawal. ");
+					return person.getBalance();
+				}
+
+				// Proceed with withdrawal if enough balance
 				PreparedStatement ps1 = conn
-						.prepareStatement("update bankuser set balance =balance - ? where accountNum=?");
+						.prepareStatement("update bankuser set balance = balance - ? where accountNum = ?");
 				ps1.setDouble(1, balance);
 				ps1.setLong(2, person.getAccountNum());
-				ps1.executeUpdate();
-				person.setBalance(person.getBalance() - balance);
-				System.out.println("Withdrawn: " + balance);
+				int rowsAffected = ps1.executeUpdate();
+
+				// If the update was successful, update the person's balance
+				if (rowsAffected > 0) {
+					person.setBalance(person.getBalance() - balance);
+					System.out.println("Withdrawn: " + balance);
+				} else {
+					System.out.println("Error: Withdrawal could not be completed.");
+				}
+			} else {
+				System.err.println(
+						"It looks like the account number you entered is incorrect. Please double-check and try again.");
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.err.println("Server error sorry!!");
+			System.err.println("Server error, sorry!!");
 		}
+
 		return person.getBalance();
 	}
-*/
-	
-	@Override
-	public double withdraw(Person person, double balance) {
-	    try (PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")) {
-	        System.out.println("Enter your account number for withdraw: ");
-	        long accountNum = scan.nextLong();
-	        ps.setLong(1, accountNum);
-	        person.setAccountNum(accountNum);
-	        
-	        ResultSet rs = ps.executeQuery();
-	        
-	        // Check if the account number exists
-	        if (rs.next()) {
-	            double currentBalance = rs.getDouble("balance"); // Fetch the balance from the database
-	            System.out.println("Account found. Current balance: " + currentBalance);
 
-	            
-	            System.out.println("Enter withdraw ammount: ");
-	            balance=scan.nextDouble();
-	            // Check if withdrawal amount is greater than current balance
-	            if (balance > currentBalance) {
-	                System.out.println("Oops! It looks like you don't have enough funds for this withdrawal. ");
-	                return person.getBalance();
-	            }
-
-	            // Proceed with withdrawal if enough balance
-	            PreparedStatement ps1 = conn.prepareStatement("update bankuser set balance = balance - ? where accountNum = ?");
-	            ps1.setDouble(1, balance);
-	            ps1.setLong(2, person.getAccountNum());
-	            int rowsAffected = ps1.executeUpdate();
-	            
-	            // If the update was successful, update the person's balance
-	            if (rowsAffected > 0) {
-	                person.setBalance(person.getBalance() - balance);
-	                System.out.println("Withdrawn: " + balance);
-	            } else {
-	                System.out.println("Error: Withdrawal could not be completed.");
-	            }
-	        } else {
-	            System.err.println("It looks like the account number you entered is incorrect. Please double-check and try again.");
-	        }
-
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        System.err.println("Server error, sorry!!");
-	    }
-
-	    return person.getBalance();
-	}
-	
-	
 	@Override
 	public void checkBalance(long accountNumber) {
 		// TODO Auto-generated method stub
@@ -204,8 +164,5 @@ public class Operations implements OperationInterface {
 		return balance;
 
 	}
-
-	
-
 
 }

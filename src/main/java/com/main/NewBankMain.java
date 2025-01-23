@@ -14,7 +14,7 @@ public class NewBankMain {
 		long accountNum = 0l;
 		Operations op = new Operations();
 
-		System.out.println("Do you want to sign up");
+	/*	System.out.println("Do you want to sign up");
 		String ans = sc.nextLine();
 
 		if (ans.equalsIgnoreCase("yes")) {
@@ -22,6 +22,7 @@ public class NewBankMain {
 		}
 		System.out.println("Thanks to using");
 
+		System.out.println("Do you want to s");
 		per = op.signIn(name, password, gmail);
 		if (per != null) {
 			System.out.println("Welocome back " + per.getName());
@@ -41,7 +42,35 @@ public class NewBankMain {
 		if(depAns.equalsIgnoreCase("yes")) {
 			op.deposit(per, balance);
 		}
+		*/
 
+		
+	
+		System.out.println("Which option will select SIGN IN/SIGN UP");
+		String signInOrSignUp=sc.nextLine();
+		
+		if(signInOrSignUp.equalsIgnoreCase("sign in")) {
+			op.signIn(name, password, gmail);
+			if(per!=null) {
+				System.out.println("Welcome Back '"+per.getName()+"'");
+				
+				System.out.println("What do you like to do DEPOSIT CASH/ WITHDRAWAL CASH/ CHECK ACCOUNT BALANCE");
+				String requestAns = sc.nextLine();
+				if(requestAns.equalsIgnoreCase("deposit cash"))
+				{
+					op.deposit(per, balance);
+				}
+				else if(requestAns.equalsIgnoreCase("withdrawal cash"))
+				{
+					op.withdraw(per, balance);
+				}
+				
+			}
+		}
+		else {
+			System.err.println("User name OR password is incorrect ");
+		}
+		
 	}
 
 }
