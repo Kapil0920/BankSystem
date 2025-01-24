@@ -108,6 +108,9 @@ public class Operations implements OperationInterface {
 					System.out.println("Oops! It looks like you don't have enough funds for this withdrawal. ");
 					return person.getBalance();
 				}
+				else if(balance <100) {
+					System.out.println("Your balance is too low you can not do transaction");
+				}
 
 				// Proceed with withdrawal if enough balance
 				PreparedStatement ps1 = conn
@@ -138,8 +141,11 @@ public class Operations implements OperationInterface {
 
 	@Override
 	public void checkBalance(long accountNumber) {
-		// TODO Auto-generated method stub
-
+		System.out.println("Enter Your account number to check your balance");
+		accountNumber = scan.nextLong();
+		
+		String acc = String.valueOf(accountNumber);
+		System.out.println(acc.length());
 	}
 
 	public double deposit(Person per, double balance) {
