@@ -1,8 +1,10 @@
 package com.main;
 
 import java.util.Scanner;
+
 import com.entity.Person;
 import com.entity.dao.Operations;
+import com.exception.InvalidRequestException;
 
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in);
@@ -12,7 +14,7 @@ public class NewBankMain {
 		String name = "null", password = "null", gmail = "null";
 		double balance = 0.0d;
 		long accountNum = 0l;
-		Operations op = new Operations();
+		Operations operations = new Operations();
 
 		/*
 		 * System.out.println("Do you want to sign up"); String ans = sc.nextLine();
@@ -36,12 +38,41 @@ public class NewBankMain {
 		 */
 
 		
-		System.out.println("What do you like to do SIGN IN/ SIGN UP");
-		System.out.println("If SIGN IN press 1 or SIGN UP press 0");
-		String inputForFirstRequest = sc.next();
+		System.out.println("What would you like to do SIGN IN or SIGN UP \nJust type 'In' for \"SIGN IN\" or 'Up' for \"SIGN UP\"");
+		String signIn_SignUp = sc.next();
 		
-		
-		if()
+		if(signIn_SignUp.equalsIgnoreCase("In")) {
+			per = operations.signIn(name, password, gmail);
+			if(per!=null) {
+				System.out.println("Welcome: "+per.getName());
+				System.out.println("We’re here to help! What service or activity would you like to try today?");
+				System.out.println("DEPOSIT/ WITHDRAWAL or CHECK BALANCE \nIf you want to \"CHECK BALANCE\" than type just 'check'");
+				sc.next();
+				String requestQuery= sc.nextLine();
+				
+				if(requestQuery.equalsIgnoreCase("Deposit")) {
+					operations.deposit(per, balance);
+				}
+				else if(requestQuery.equalsIgnoreCase("withdrawal")) {
+					operations.withdraw(per, balance);
+				}
+				else if(requestQuery.equalsIgnoreCase("check")) {
+					operations.checkBalance(accountNum);
+				}
+				else {
+//					try {
+//					throw new InvalidRequestException();
+//					}catch (InvalidRequestException e) {
+//						e.printStackTrace();
+//					}
+					InvalidRequestException in = new InvalidRequestException();
+					in.printException();
+				}
+			}
+			else {
+				InvalidUserDetails 
+			}
+		}
 	}
 
 }
