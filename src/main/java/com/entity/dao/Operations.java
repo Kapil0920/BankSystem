@@ -30,7 +30,6 @@ public class Operations implements OperationInterface {
 
 	
 	
-	
 	// This is the sign up method for new user
 	@Override
 	public void signUp(String name, String password, String gmail) {
@@ -38,13 +37,20 @@ public class Operations implements OperationInterface {
 		name = scan.nextLine();
 		System.out.println("Enter your password");
 		password = scan.nextLine();
+		for(int i=password.length(); password.length()>8; i++) {
+		if(password.length()<8) {
+			System.out.println("Password should contain atleast 8 digit\nPlease re-enter the password");
+			password = scan.nextLine();
+			
+		}
+		}
 		System.out.println("Enter your gmail id");
 		gmail = scan.nextLine();
-
-		this.accountNum = random.nextLong(1000000000000000L, 9999999999999999L);
-		if (accountNum != 0) {
-			System.out.println("Account number generated: " + accountNum);
+		if(gmail.contains("@") || gmail.contains("gmail.com")) {
+			System.out.println("Please add the '@' to mail id ");
+			gmail= scan.nextLine();
 		}
+		this.accountNum = random.nextLong(1000000000000000L, 9999999999999999L);
 
 		try (PreparedStatement ps = conn
 				.prepareStatement("insert into bankuser (accountNum,name,password,gmail) values(?,?,?,?)")) {
@@ -56,7 +62,7 @@ public class Operations implements OperationInterface {
 
 			System.out.println("Your account num is: " + this.accountNum);
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			System.err.println("Mail id is already register");
 			e.printStackTrace();
 		}
@@ -111,8 +117,13 @@ public class Operations implements OperationInterface {
 
 			// Check if the account number exist
 				if (person.getAccountNum() != accountNum) {
-					AccountNumberNotMatchException accountNumberNotMatchException = new AccountNumberNotMatchException();
-					accountNumberNotMatchException.printEx();
+					try{
+						throw new AccountNumberNotMatchException("Account number is not correct please check the account number first");
+					
+					}
+					catch(AccountNumberNotMatchException e) {
+						e.printStackTrace();
+					}
 				} 
 				else {
 					
@@ -170,9 +181,30 @@ public class Operations implements OperationInterface {
 
 	@Override
 	public void checkBalance(Person per,long accountNumber) {
-		System.out.println("Enter the account number ");
-		accountNumber= scan.nextLong();
-		System.out.println(person.getAccountNum());
+		try(PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")){
+			System.out.println("Enter the account number ");
+			accountNumber= scan.nextLong();
+			
+			ps.setLong(1, accountNumber);
+			
+			ResultSet rs = ps.executeQuery();
+			if(per.getAccountNum()==accountNumber && rs.next()) {
+				System.out.println("Account found");
+				System.out.println("Your account balance is: "+rs.getDouble("Balance"));
+			}
+			else {
+				try {
+				throw new AccountNumberNotMatchException("Account number doesn't match to user data");
+				}
+				catch (AccountNumberNotMatchException e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+			}
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
 		if(person.getAccountNum()==accountNumber) {
 			
 		}
@@ -193,9 +225,13 @@ public class Operations implements OperationInterface {
 			// Verifying that the user who has signed in must have their account number to
 			// deposit money
 			if (per.getAccountNum() != newDepositAccount) {
-
-				AccountNumberNotMatchException accountNumberNotMatchException = new AccountNumberNotMatchException();
-				accountNumberNotMatchException.printEx();
+				try {
+					throw new AccountNumberNotMatchException("Account number is incorrect please check the account number");
+				}
+				catch(AccountNumberNotMatchException e) {
+					e.printStackTrace();
+				}
+				
 			} else if (per.getAccountNum() == newDepositAccount) {
 				System.out.println("Enter deposit ammount: ");
 				balance = scan.nextDouble();
