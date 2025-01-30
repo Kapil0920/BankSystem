@@ -67,7 +67,6 @@ public class Person {
 
 	public Person() {
 		super();
-		System.out.println("Default Constructor");
 	}
 
 	

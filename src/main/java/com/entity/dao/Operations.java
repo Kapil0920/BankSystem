@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 import com.entity.Person;
+import com.exception.AccountNumberNotMatchException;
+
 import java.util.Random;
 
 public class Operations implements OperationInterface {
@@ -26,6 +28,10 @@ public class Operations implements OperationInterface {
 		}
 	}
 
+	
+	
+	
+	// This is the sign up method for new user
 	@Override
 	public void signUp(String name, String password, String gmail) {
 		System.out.println("Enter Your Name to 'SIGN UP'");
@@ -57,6 +63,9 @@ public class Operations implements OperationInterface {
 
 	}
 
+	
+	
+//	This is the Sign in method for Old user who has already account
 	@Override
 	public Person signIn(String name, String password, String gmail) {
 		System.out.println("Enter your name ");
@@ -86,68 +95,94 @@ public class Operations implements OperationInterface {
 
 	}
 
+	
+	
+	
+	
 	@Override
 	public double withdraw(Person person, double balance) {
 		try (PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")) {
+
 			System.out.println("Enter your account number for withdraw: ");
 			long accountNum = scan.nextLong();
 			ps.setLong(1, accountNum);
-			person.setAccountNum(accountNum);
-
+//			person.setAccountNum(accountNum);
 			ResultSet rs = ps.executeQuery();
 
-			// Check if the account number exists
-			if (rs.next()) {
-				double currentBalance = rs.getDouble("balance"); // Fetch the balance from the database
-				System.out.println("Account found. Current balance: " + currentBalance);
+			// Check if the account number exist
+				if (person.getAccountNum() != accountNum) {
+					AccountNumberNotMatchException accountNumberNotMatchException = new AccountNumberNotMatchException();
+					accountNumberNotMatchException.printEx();
+				} 
+				else {
+					
+					if (rs.next()) {
+						double currentBalance = rs.getDouble("balance"); // Fetch the balance from the database
+						System.out.println("Account found. Current balance: " + currentBalance);
+						System.out.println();
+						if (currentBalance < 100) {
+							System.out.println("Your balance is too low you can not do transaction");
+						}
+	
+						else {
+							System.out.println("Enter withdraw ammount: ");
+							balance = scan.nextDouble();
+		
+								// Check if withdrawal amount is greater than current balance
+							if (balance > currentBalance) {
+								System.out.println("Oops! It looks like you don't have enough funds for this withdrawal. ");
+								return person.getBalance();
+							}
+	
+							// Proceed with withdrawal if enough balance
+							PreparedStatement ps1 = conn
+									.prepareStatement("update bankuser set balance = balance - ? where accountNum = ?");
+							ps1.setDouble(1, balance);
+							ps1.setLong(2, person.getAccountNum());
+							int rowsAffected = ps1.executeUpdate();
+	
+							// If the update was successful, update the person's balance
+							if (rowsAffected > 0) {
+								person.setBalance(person.getBalance() - balance);
+								System.out.println("Withdrawn: " + balance);
+							} else {
+								System.out.println("Error: Withdrawal could not be completed.");
+							}
+						}
+					}
 
-				System.out.println("Enter withdraw ammount: ");
-				balance = scan.nextDouble();
-				// Check if withdrawal amount is greater than current balance
-				if (balance > currentBalance) {
-					System.out.println("Oops! It looks like you don't have enough funds for this withdrawal. ");
-					return person.getBalance();
 				}
-				else if(balance <100) {
-					System.out.println("Your balance is too low you can not do transaction");
-				}
 
-				// Proceed with withdrawal if enough balance
-				PreparedStatement ps1 = conn
-						.prepareStatement("update bankuser set balance = balance - ? where accountNum = ?");
-				ps1.setDouble(1, balance);
-				ps1.setLong(2, person.getAccountNum());
-				int rowsAffected = ps1.executeUpdate();
-
-				// If the update was successful, update the person's balance
-				if (rowsAffected > 0) {
-					person.setBalance(person.getBalance() - balance);
-					System.out.println("Withdrawn: " + balance);
-				} else {
-					System.out.println("Error: Withdrawal could not be completed.");
-				}
-			} else {
-				System.err.println(
-						"It looks like the account number you entered is incorrect. Please double-check and try again.");
-			}
-
-		} catch (SQLException e) {
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 			System.err.println("Server error, sorry!!");
+
 		}
 
 		return person.getBalance();
 	}
 
+	
+	
+	
+	
+
 	@Override
-	public void checkBalance(long accountNumber) {
-		System.out.println("Enter Your account number to check your balance");
-		accountNumber = scan.nextLong();
-		
-		String acc = String.valueOf(accountNumber);
-		System.out.println(acc.length());
+	public void checkBalance(Person per,long accountNumber) {
+		System.out.println("Enter the account number ");
+		accountNumber= scan.nextLong();
+		System.out.println(person.getAccountNum());
+		if(person.getAccountNum()==accountNumber) {
+			
+		}
+	
 	}
 
+	
+	
+	
+	
 	public double deposit(Person per, double balance) {
 		try (PreparedStatement ps = conn
 				.prepareStatement("update bankuser set balance =balance + ? where accountNum=? ")) {
@@ -155,14 +190,21 @@ public class Operations implements OperationInterface {
 			long newDepositAccount = scan.nextLong();
 			ps.setLong(2, newDepositAccount);
 
-			System.out.println("Enter deposit ammount: ");
-			balance = scan.nextDouble();
-			person.setBalance(balance);
-			ps.setDouble(1, balance);
-			ps.executeUpdate();
-			person.setBalance(person.getBalance() + balance);
-			System.out.println("You've succesfully deposit your balance ");
+			// Verifying that the user who has signed in must have their account number to
+			// deposit money
+			if (per.getAccountNum() != newDepositAccount) {
 
+				AccountNumberNotMatchException accountNumberNotMatchException = new AccountNumberNotMatchException();
+				accountNumberNotMatchException.printEx();
+			} else if (per.getAccountNum() == newDepositAccount) {
+				System.out.println("Enter deposit ammount: ");
+				balance = scan.nextDouble();
+				person.setBalance(balance);
+				ps.setDouble(1, balance);
+				ps.executeUpdate();
+				person.setBalance(person.getBalance() + balance);
+				System.out.println("You've succesfully deposit your balance ");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
