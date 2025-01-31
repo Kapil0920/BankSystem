@@ -18,7 +18,6 @@ public class NewBankMain {
 		long accountNum = 0l; // Variable to store account number
 		Operations operations = new Operations(); // Creating an Operations object to handle banking operations
 
-		/*
 		// Prompt the user to choose between signing in or signing up
 		System.out.println(
 				"What would you like to do SIGN IN or SIGN UP \n\nJust type 'In' for \"SIGN IN\" or 'Up' for \"SIGN UP\"");
@@ -82,6 +81,11 @@ public class NewBankMain {
 			// Check if the user wants to sign up
 		} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
 			operations.signUp(name, password, gmail); // Call the sign-up method
+			System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
+			String signUpToLogin = sc.next();
+			if (signUpToLogin.equalsIgnoreCase("yes")) {
+				operations.signIn(name, password, gmail);
+			}
 
 		} else {
 			// If the input is neither "In" nor "Up", throw an exception
@@ -93,13 +97,6 @@ public class NewBankMain {
 				e.printStackTrace();
 			}
 		}
-		*/
 
-//		operations.signUp(name, password, gmail);
-		
-		String mail = "kapil@gmail.com";
-		if(!mail.contains("@")) {
-			System.out.println("please add the @ in mail id");
-		}
 	}
 }
