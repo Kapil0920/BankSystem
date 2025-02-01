@@ -65,7 +65,7 @@ public class NewBankMain {
 						// Handle the exception and inform the user
 						System.err.println("Please Enter the valid input to run the application");
 						e.printStackTrace();
-					}
+			  		}
 				}
 			} else {
 				// If sign-in data does not match to database, throw an exception
