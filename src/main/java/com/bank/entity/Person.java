@@ -1,4 +1,4 @@
-package com.entity;
+package com.bank.entity;
 
 public class Person {
 

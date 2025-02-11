@@ -1,15 +1,12 @@
-package com.main;
+package com.bank.controller;
 
 import java.util.Scanner;
 
-import com.entity.Person;
-import com.entity.dao.Operations;
-import com.exception.InvalidInputByUser;
-import com.exception.NoUserFoundsException;
 
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
 
+/*
 	public static void main(String[] args) {
 
 		Person per = new Person(); // Creating a Person object
@@ -17,7 +14,7 @@ public class NewBankMain {
 		double balance = 0.0d; // Variable to store balance amount
 		long accountNum = 0l; // Variable to store account number
 		Operations operations = new Operations(); // Creating an Operations object to handle banking operations
-
+/*
 		// Prompt the user to choose between signing in or signing up
 		System.out.println(
 				"What would you like to do SIGN IN or SIGN UP \n\nJust type 'In' for \"SIGN IN\" or 'Up' for \"SIGN UP\"");
@@ -97,6 +94,10 @@ public class NewBankMain {
 				e.printStackTrace();
 			}
 		}
+		*/
 
-	}
+		
+		
+	
+	
 }

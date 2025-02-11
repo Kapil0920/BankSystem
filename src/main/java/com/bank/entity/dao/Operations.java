@@ -1,4 +1,4 @@
-package com.entity.dao;
+package com.bank.entity.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,8 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
-import com.entity.Person;
-import com.exception.AccountNumberNotMatchException;
+
+import com.bank.entity.Person;
+import com.bank.exception.AccountNumberNotMatchException;
 
 import java.util.Random;
 
@@ -31,6 +32,9 @@ public class Operations implements OperationInterface {
         }
     }
 
+    
+    
+    
     // This is the sign-up method for new users
     @Override
     public void signUp(String name, String password, String gmail) {
@@ -76,6 +80,9 @@ public class Operations implements OperationInterface {
             System.err.println("Mail id is already registered");
         }
     }
+    
+    
+    
 
     // This is the sign-in method for existing users
     @Override
@@ -227,3 +234,4 @@ public class Operations implements OperationInterface {
         return passString.length() > 7; // Return true if the password length is greater than 7 characters
     }
 }
+

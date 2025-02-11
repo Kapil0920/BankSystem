@@ -1,6 +1,6 @@
-package com.entity.dao;
+package com.bank.entity.dao;
 
-import com.entity.Person;
+import com.bank.entity.Person;
 
 public interface OperationInterface {
 	Person signIn(String name,String password,String gmail);
