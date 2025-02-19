@@ -5,12 +5,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Random;
 import java.util.Scanner;
 
 import com.bank.entity.Person;
 import com.bank.exception.AccountNumberNotMatchException;
-
-import java.util.Random;
 
 public class Operations implements OperationInterface {
     // Random object to generate random account numbers
