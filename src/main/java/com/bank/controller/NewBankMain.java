@@ -2,19 +2,32 @@ package com.bank.controller;
 
 import java.util.Scanner;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.bank.configuration.BankConfiguration;
+import com.bank.entity.Person;
+import com.bank.entity.dao.OperationInterface;
+import com.bank.entity.dao.Operations;
+import com.bank.exception.InvalidInputByUser;
+import com.bank.exception.NoUserFoundsException;
+
 
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
 
-/*
+
 	public static void main(String[] args) {
 
 		Person per = new Person(); // Creating a Person object
 		String name = "null", password = "null", gmail = "null"; // Variables for user details
 		double balance = 0.0d; // Variable to store balance amount
 		long accountNum = 0l; // Variable to store account number
-		Operations operations = new Operations(); // Creating an Operations object to handle banking operations
-/*
+		ApplicationContext appContext = new AnnotationConfigApplicationContext(BankConfiguration.class);
+		Operations op = appContext.getBean(Operations.class);
+
+		
+		
 		// Prompt the user to choose between signing in or signing up
 		System.out.println(
 				"What would you like to do SIGN IN or SIGN UP \n\nJust type 'In' for \"SIGN IN\" or 'Up' for \"SIGN UP\"");
@@ -23,8 +36,7 @@ public class NewBankMain {
 		// Check if the user wants to sign in
 		if (signIn_SignUp.equalsIgnoreCase("In")) {
 			// Attempt to sign in the user with provided credentials
-			per = operations.signIn(name, password, gmail);
-
+			per = op.signIn(name,password,gmail);
 			// Check if the sign-in was successful
 			if (per != null) {
 				// Welcome the user if sign-in is successful
@@ -44,15 +56,15 @@ public class NewBankMain {
 
 				// Check if the user wants to deposit money
 				if (requestQuery.equalsIgnoreCase("d")) {
-					operations.deposit(per, balance); // Call the deposit method
+					op.deposit(per, balance); // Call the deposit method
 
 					// Check if the user wants to withdraw money
 				} else if (requestQuery.equalsIgnoreCase("w")) {
-					operations.withdraw(per, balance); // Call the withdrawal method
+					op.withdraw(per, balance); // Call the withdrawal method
 
 					// Check if the user wants to check their balance
 				} else if (requestQuery.equalsIgnoreCase("check")) {
-					operations.checkBalance(per, accountNum); // Call the check balance method
+					op.checkBalance(per, accountNum); // Call the check balance method
 
 				} else {
 					// If the input is invalid, throw an exception
@@ -77,11 +89,11 @@ public class NewBankMain {
 
 			// Check if the user wants to sign up
 		} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
-			operations.signUp(name, password, gmail); // Call the sign-up method
+			op.signUp(per); // Call the sign-up method
 			System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
 			String signUpToLogin = sc.next();
 			if (signUpToLogin.equalsIgnoreCase("yes")) {
-				operations.signIn(name, password, gmail);
+				op.signIn(name, password, gmail);
 			}
 
 		} else {
@@ -94,10 +106,13 @@ public class NewBankMain {
 				e.printStackTrace();
 			}
 		}
-		*/
+		
 
 		
+	
 		
+
 	
-	
+	}
+
 }
