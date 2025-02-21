@@ -4,18 +4,16 @@ import java.util.Scanner;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.bank.configuration.BankConfiguration;
 import com.bank.entity.Person;
-import com.bank.entity.dao.OperationInterface;
 import com.bank.entity.dao.Operations;
 import com.bank.exception.InvalidInputByUser;
 import com.bank.exception.NoUserFoundsException;
 
-
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
-
 
 	public static void main(String[] args) {
 
@@ -26,8 +24,6 @@ public class NewBankMain {
 		ApplicationContext appContext = new AnnotationConfigApplicationContext(BankConfiguration.class);
 		Operations op = appContext.getBean(Operations.class);
 
-		
-		
 		// Prompt the user to choose between signing in or signing up
 		System.out.println(
 				"What would you like to do SIGN IN or SIGN UP \n\nJust type 'In' for \"SIGN IN\" or 'Up' for \"SIGN UP\"");
@@ -36,7 +32,7 @@ public class NewBankMain {
 		// Check if the user wants to sign in
 		if (signIn_SignUp.equalsIgnoreCase("In")) {
 			// Attempt to sign in the user with provided credentials
-			per = op.signIn(name,password,gmail);
+			per = op.signIn(name, password, gmail);
 			// Check if the sign-in was successful
 			if (per != null) {
 				// Welcome the user if sign-in is successful
@@ -74,7 +70,7 @@ public class NewBankMain {
 						// Handle the exception and inform the user
 						System.err.println("Please Enter the valid input to run the application");
 						e.printStackTrace();
-			  		}
+					}
 				}
 			} else {
 				// If sign-in data does not match to database, throw an exception
@@ -89,11 +85,16 @@ public class NewBankMain {
 
 			// Check if the user wants to sign up
 		} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
-			op.signUp(per); // Call the sign-up method
-			System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
-			String signUpToLogin = sc.next();
-			if (signUpToLogin.equalsIgnoreCase("yes")) {
-				op.signIn(name, password, gmail);
+			try {
+				op.signUp(per); // Call the sign-up method
+
+				System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
+				String signUpToLogin = sc.next();
+				if (signUpToLogin.equalsIgnoreCase("yes")) {
+					op.signIn(name, password, gmail);
+				}
+			} catch (DuplicateKeyException e) {
+				e.printStackTrace();
 			}
 
 		} else {
@@ -106,13 +107,9 @@ public class NewBankMain {
 				e.printStackTrace();
 			}
 		}
-		
 
-		
-	
-		
+		System.out.println("Program is end............");
 
-	
 	}
 
 }

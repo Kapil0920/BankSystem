@@ -11,6 +11,7 @@ import java.util.Scanner;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import  org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Component;
 import com.bank.entity.Person;
 import com.bank.entity.PersonRowMapper;
 import com.bank.exception.AccountNumberNotMatchException;
-import com.bank.exception.DuplicateEntryException;
-
 @Component
 public class Operations implements OperationInterface {
 	// Random object to generate random account numbers
@@ -88,38 +87,31 @@ public class Operations implements OperationInterface {
 
 		this.accountNum = random.nextLong(1000000000000000l, 9999999999999999l);
 		per.setAccountNum(accountNum);
-//    	try{
-//    		if (gmail==per.getGmail()){
-//    			throw new DuplicateEntryException("Duplicate Gmail");
-//    		}
-//    	}catch(DuplicateEntryException e) {
-//    		e.printStackTrace();
-//    	}
-
+		
+			
+			
+		
 		try {
-//			Person obj=new Person();
-			if (per.getGmail() == gmail) {
+			per.setGmail(gmail);
 
-			String gmailQuery = "select * from bankuser where gmail =?";
-			PersonRowMapper personRowMap = new PersonRowMapper();
-			Person obj = jdbcTemplate.queryForObject(gmailQuery, personRowMap, per.getGmail());
-
-				System.out.println("This is working");
+			if(gmail==person.getGmail()) {
+				throw new DuplicateKeyException("DuplicateKeyException");
 			}
-			else {
-				System.out.println("Gmail not found");
-			}
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
 		}
-		per.setGmail(gmail);
+		catch(DuplicateKeyException e) {
+			System.err.println("Mail Id is already Register");
+			
+		}
+		
 		System.out.println("Your Account Number is: " + accountNum);
-		String query = "insert into bankuser (accountNum,balance,name,password,gmail ) values ('"
-				+ per.getAccountNum() + "','" + per.getBalance() + "','" + per.getName() + "','" + per.getPassword()
-				+ "','" + per.getGmail() + "')";
 
+		String query = "insert into bankuser (accountNum,balance,name,password,gmail ) values ('" + per.getAccountNum()
+		+ "','" + per.getBalance() + "','" + per.getName() + "','" + per.getPassword() + "','" + per.getGmail()
+		+ "')";
+			
+		
 		return jdbcTemplate.update(query);
+		
 	}
 
 	// This is the sign-in method for existing users
