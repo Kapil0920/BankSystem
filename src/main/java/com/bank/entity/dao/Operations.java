@@ -59,7 +59,7 @@ public class Operations implements OperationInterface {
 	}
 
 	@Override
-	public int signUp(Person per) {
+	public void signUp(Person per) {
 		System.out.println("Enter name: ");
 		String name = scan.nextLine();
 		per.setName(name);
@@ -79,7 +79,7 @@ public class Operations implements OperationInterface {
 		System.out.println("Enter your gmail id");
 		String gmail = scan.nextLine();
 
-		while (!gmail.contains("@") && !gmail.contains("gmail.com")) {
+		while (!gmail.contains("@") || !gmail.contains("gmail.com")) {
 			System.out.println("Please enter the valid Email id");
 			gmail = scan.nextLine();
 			per.setGmail(gmail);
@@ -88,29 +88,49 @@ public class Operations implements OperationInterface {
 		this.accountNum = random.nextLong(1000000000000000l, 9999999999999999l);
 		per.setAccountNum(accountNum);
 		
-			
+//		try (PreparedStatement ps = conn.prepareStatement("insert into bankuser (accountNum,name,password,gmail) values(?,?,?,?)")) {
+//            ps.setLong(1, accountNum);
+//            ps.setString(2, name);
+//            ps.setString(3, password);
+//            ps.setString(4, gmail);
+//            ps.executeUpdate(); // Execute the insert operation
+//
+//            System.out.println("Your account num is: " + this.accountNum);
+//        } catch (SQLException e) {
+//            // Handle SQL exceptions, such as duplicate email
+//            System.err.println("Mail id is already registered");
+//        }
+//    }
 			
 		
-		try {
+//		try {
 			per.setGmail(gmail);
 
 			if(gmail==person.getGmail()) {
 				throw new DuplicateKeyException("DuplicateKeyException");
 			}
-		}
-		catch(DuplicateKeyException e) {
-			System.err.println("Mail Id is already Register");
-			
-		}
+//		}
+//		catch(DuplicateKeyException e) {
+//			System.err.println("Mail Id is already Register");
+//			
+//		}
 		
-		System.out.println("Your Account Number is: " + accountNum);
+			try{
 
 		String query = "insert into bankuser (accountNum,balance,name,password,gmail ) values ('" + per.getAccountNum()
 		+ "','" + per.getBalance() + "','" + per.getName() + "','" + per.getPassword() + "','" + per.getGmail()
 		+ "')";
-			
 		
-		return jdbcTemplate.update(query);
+		
+			jdbcTemplate.update(query);
+			System.out.println("Your Account Number is: " + accountNum);
+
+			}
+			catch(DuplicateKeyException e) {
+				System.err.println("Mail Id is already register");
+//				e.printStackTrace();
+			}
+		
 		
 	}
 
@@ -229,6 +249,7 @@ public class Operations implements OperationInterface {
 
 			// Verify that the user who has signed in must have their account number to
 			// deposit money
+			System.out.println(per.getAccountNum());
 			if (per.getAccountNum() != newDepositAccount) {
 				try {
 					throw new AccountNumberNotMatchException(
