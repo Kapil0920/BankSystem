@@ -121,9 +121,8 @@ public class Operations implements OperationInterface {
 		password = scan.nextLine();
 		System.out.println("Enter Your gmail");
 		gmail = scan.nextLine();
-
+		person.getAccountNum();
 		String query = "select * from bankuser where name=? and password=? and gmail=?";
-
 		RowMapper<Person> rowMap = new PersonRowMapper();
 		Person obj = jdbcTemplate.queryForObject(query, rowMap, name, password, gmail);
 		System.out.println("Got details");
@@ -220,35 +219,35 @@ public class Operations implements OperationInterface {
 	// Method to deposit money into the user's account
 	public void deposit(Person per, double balance) {
 		String query = "update bankuser set balance = balance + ? where accountNum=?";
-		String accountNumQuery = "select * from bankuser where accountNum =? ";
-				System.out.println("Enter account number");
-			long newDepositAccount = scan.nextLong(); // Get account number for deposit
-			
-			RowMapper< Person> rowMap = new PersonRowMapper();
-			jdbcTemplate.queryForObject(accountNumQuery,rowMap, newDepositAccount);
-			
 
-			// Verify that the user who has signed in must have their account number to
-			// deposit money
+		String accountNumQuery = "select * from bankuser where accountNum =? ";
+		
+		System.out.println("Enter account number");
+		long newDepositAccount = scan.nextLong(); // Get account number for deposit
+
+		RowMapper<Person> rowMap = new PersonRowMapper();
+		jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
+
+		// Verify that the user who has signed in must have their account number to
+		// deposit money
 //			jdbcTemplate.queryForList(query,balance,per.getAccountNum());
-			
-			int d=jdbcTemplate.update(query,500,5072420263423990l);
-			
-			
-			if (per.getAccountNum() != newDepositAccount) {
-				try {
-					throw new AccountNumberNotMatchException(
-							"Account number is incorrect; please check the account number");
-				} catch (AccountNumberNotMatchException e) {
-					e.printStackTrace(); // Print stack trace for debugging
-				}
-			} else if (per.getAccountNum() == newDepositAccount) {
-				System.out.println("Enter deposit amount: ");
-				balance = scan.nextDouble(); // Get deposit amount from user
-				person.setBalance(balance); // Update person's balance
-				person.setBalance(person.getBalance() + balance); // Update the person's balance
-				System.out.println("You've successfully deposited your balance ");
+
+		jdbcTemplate.update(query, balance, newDepositAccount);
+
+		if (per.getAccountNum() != newDepositAccount) {
+			try {
+				throw new AccountNumberNotMatchException(
+						"Account number is incorrect; please check the account number");
+			} catch (AccountNumberNotMatchException e) {
+				e.printStackTrace(); // Print stack trace for debugging
 			}
+		} else if (per.getAccountNum() == newDepositAccount) {
+			System.out.println("Enter deposit amount: ");
+			balance = scan.nextDouble(); // Get deposit amount from user
+			person.setBalance(balance); // Update person's balance
+			person.setBalance(person.getBalance() + balance); // Update the person's balance
+			System.out.println("You've successfully deposited your balance ");
+		}
 	}
 
 	// Method to check if the password length is valid
