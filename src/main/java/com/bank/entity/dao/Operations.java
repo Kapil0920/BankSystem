@@ -88,32 +88,11 @@ public class Operations implements OperationInterface {
 		this.accountNum = random.nextLong(1000000000000000l, 9999999999999999l);
 		per.setAccountNum(accountNum);
 		
-//		try (PreparedStatement ps = conn.prepareStatement("insert into bankuser (accountNum,name,password,gmail) values(?,?,?,?)")) {
-//            ps.setLong(1, accountNum);
-//            ps.setString(2, name);
-//            ps.setString(3, password);
-//            ps.setString(4, gmail);
-//            ps.executeUpdate(); // Execute the insert operation
-//
-//            System.out.println("Your account num is: " + this.accountNum);
-//        } catch (SQLException e) {
-//            // Handle SQL exceptions, such as duplicate email
-//            System.err.println("Mail id is already registered");
-//        }
-//    }
-			
-		
-//		try {
 			per.setGmail(gmail);
 
 			if(gmail==person.getGmail()) {
 				throw new DuplicateKeyException("DuplicateKeyException");
 			}
-//		}
-//		catch(DuplicateKeyException e) {
-//			System.err.println("Mail Id is already Register");
-//			
-//		}
 		
 			try{
 
@@ -128,7 +107,6 @@ public class Operations implements OperationInterface {
 			}
 			catch(DuplicateKeyException e) {
 				System.err.println("Mail Id is already register");
-//				e.printStackTrace();
 			}
 		
 		
@@ -241,34 +219,31 @@ public class Operations implements OperationInterface {
 
 	// Method to deposit money into the user's account
 	public double deposit(Person per, double balance) {
-		try (PreparedStatement ps = conn
-				.prepareStatement("update bankuser set balance = balance + ? where accountNum=? ")) {
-			System.out.println("Enter account number");
-			long newDepositAccount = scan.nextLong(); // Get account number for deposit
-			ps.setLong(2, newDepositAccount); // Set the account number in the query
+		String query = "update bankuser set balance = balance + ? where accountNum=?";
+//				System.out.println("Enter account number");
+//			long newDepositAccount = scan.nextLong(); // Get account number for deposit
 
 			// Verify that the user who has signed in must have their account number to
 			// deposit money
-			System.out.println(per.getAccountNum());
-			if (per.getAccountNum() != newDepositAccount) {
+//			jdbcTemplate.queryForList(query,balance,per.getAccountNum());
+			
+			jdbcTemplate.update(query,500,5072420263423990l);
+			
+			
+			if (per.getAccountNum() != 5072420263423990l) {
 				try {
 					throw new AccountNumberNotMatchException(
 							"Account number is incorrect; please check the account number");
 				} catch (AccountNumberNotMatchException e) {
 					e.printStackTrace(); // Print stack trace for debugging
 				}
-			} else if (per.getAccountNum() == newDepositAccount) {
+			} else if (per.getAccountNum() == 5072420263423990l) {
 				System.out.println("Enter deposit amount: ");
 				balance = scan.nextDouble(); // Get deposit amount from user
 				person.setBalance(balance); // Update person's balance
-				ps.setDouble(1, balance); // Set the deposit amount in the query
-				ps.executeUpdate(); // Execute the update operation
 				person.setBalance(person.getBalance() + balance); // Update the person's balance
 				System.out.println("You've successfully deposited your balance ");
 			}
-		} catch (SQLException e) {
-			e.printStackTrace(); // Print stack trace for debugging
-		}
 		return balance; // Return the deposited amount
 	}
 
