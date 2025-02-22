@@ -44,9 +44,10 @@ public class NewBankMain {
 
 					System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
 					String signUpToLogin = sc.next();
-					if (signUpToLogin.equalsIgnoreCase("yes"))
+					if (signUpToLogin.equalsIgnoreCase("yes")) {
 					per=op.signIn(name, password, gmail);
 					signingIn(per);
+				}
 
 				} catch (DuplicateKeyException e) {
 					e.printStackTrace();
@@ -172,8 +173,8 @@ public class NewBankMain {
 	
 	
 	public static void signingIn(Person person) {
-		System.out.println("Hello & Welcome Back "+name+"\n");
-		System.out.println(per.getAccountNum()+"\t"+per.getBalance()+"\t"+per.getGmail()+"\t"+per.getPassword()+"\t"+per.getName());
+		System.out.println("Hello & Welcome Back "+person.getName()+"\n");
+		System.out.println(person.getAccountNum()+"\t"+person.getBalance()+"\t"+person.getGmail()+"\t"+per.getPassword()+"\t"+person.getName());
 
 		System.out.println("\nWe’re here to help! What service or activity would you like to try today?\n");
 		System.out.println(

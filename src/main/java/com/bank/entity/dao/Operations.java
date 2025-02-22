@@ -218,33 +218,37 @@ public class Operations implements OperationInterface {
 	}
 
 	// Method to deposit money into the user's account
-	public double deposit(Person per, double balance) {
+	public void deposit(Person per, double balance) {
 		String query = "update bankuser set balance = balance + ? where accountNum=?";
-//				System.out.println("Enter account number");
-//			long newDepositAccount = scan.nextLong(); // Get account number for deposit
+		String accountNumQuery = "select * from bankuser where accountNum =? ";
+				System.out.println("Enter account number");
+			long newDepositAccount = scan.nextLong(); // Get account number for deposit
+			
+			RowMapper< Person> rowMap = new PersonRowMapper();
+			jdbcTemplate.queryForObject(accountNumQuery,rowMap, newDepositAccount);
+			
 
 			// Verify that the user who has signed in must have their account number to
 			// deposit money
 //			jdbcTemplate.queryForList(query,balance,per.getAccountNum());
 			
-			jdbcTemplate.update(query,500,5072420263423990l);
+			int d=jdbcTemplate.update(query,500,5072420263423990l);
 			
 			
-			if (per.getAccountNum() != 5072420263423990l) {
+			if (per.getAccountNum() != newDepositAccount) {
 				try {
 					throw new AccountNumberNotMatchException(
 							"Account number is incorrect; please check the account number");
 				} catch (AccountNumberNotMatchException e) {
 					e.printStackTrace(); // Print stack trace for debugging
 				}
-			} else if (per.getAccountNum() == 5072420263423990l) {
+			} else if (per.getAccountNum() == newDepositAccount) {
 				System.out.println("Enter deposit amount: ");
 				balance = scan.nextDouble(); // Get deposit amount from user
 				person.setBalance(balance); // Update person's balance
 				person.setBalance(person.getBalance() + balance); // Update the person's balance
 				System.out.println("You've successfully deposited your balance ");
 			}
-		return balance; // Return the deposited amount
 	}
 
 	// Method to check if the password length is valid
