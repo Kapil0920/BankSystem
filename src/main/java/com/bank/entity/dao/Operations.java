@@ -11,7 +11,9 @@ import java.util.Scanner;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import  org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -217,37 +219,31 @@ public class Operations implements OperationInterface {
 	}
 
 	// Method to deposit money into the user's account
-	public void deposit(Person per, double balance) {
-		String query = "update bankuser set balance = balance + ? where accountNum=?";
-
-		String accountNumQuery = "select * from bankuser where accountNum =? ";
-		
+	public void deposit(Person per,double balance) {
 		System.out.println("Enter account number");
 		long newDepositAccount = scan.nextLong(); // Get account number for deposit
 
+		String accountNumQuery = "SELECT * FROM bankuser WHERE accountNum = ?";
+
 		RowMapper<Person> rowMap = new PersonRowMapper();
-		jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
 
-		// Verify that the user who has signed in must have their account number to
-		// deposit money
-//			jdbcTemplate.queryForList(query,balance,per.getAccountNum());
+		try {
+			per= jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
+			// Proceed with deposit logic using the 'person' object
+			System.out.println("Account found: " + person.toString());
 
-		jdbcTemplate.update(query, balance, newDepositAccount);
-
-		if (per.getAccountNum() != newDepositAccount) {
-			try {
-				throw new AccountNumberNotMatchException(
-						"Account number is incorrect; please check the account number");
-			} catch (AccountNumberNotMatchException e) {
-				e.printStackTrace(); // Print stack trace for debugging
-			}
-		} else if (per.getAccountNum() == newDepositAccount) {
-			System.out.println("Enter deposit amount: ");
-			balance = scan.nextDouble(); // Get deposit amount from user
-			person.setBalance(balance); // Update person's balance
-			person.setBalance(person.getBalance() + balance); // Update the person's balance
-			System.out.println("You've successfully deposited your balance ");
+			System.out.println("Enter Deposit ammount: ");
+			balance = scan.nextInt();
+			
+			String query = "update bankuser set balance = balance + ? where accountNum=?";
+			jdbcTemplate.update(query, balance, newDepositAccount);
+			System.out.println("Succesfully deposit in account");
+		} catch (EmptyResultDataAccessException e) {
+			System.err.println("No account found with the given account number.");
+		} catch (DataAccessException e) {
+			System.err.println("An error occurred while accessing the database: " + e.getMessage());
 		}
+
 	}
 
 	// Method to check if the password length is valid

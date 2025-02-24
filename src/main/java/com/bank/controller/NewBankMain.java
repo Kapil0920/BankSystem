@@ -174,7 +174,6 @@ public class NewBankMain {
 	
 	public static void signingIn(Person person) {
 		System.out.println("Hello & Welcome Back "+person.getName()+"\n");
-		System.out.println(person.getAccountNum()+"\t"+person.getBalance()+"\t"+person.getGmail()+"\t"+per.getPassword()+"\t"+person.getName());
 
 		System.out.println("\nWe’re here to help! What service or activity would you like to try today?\n");
 		System.out.println(
