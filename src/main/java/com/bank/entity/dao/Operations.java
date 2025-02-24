@@ -230,7 +230,7 @@ public class Operations implements OperationInterface {
 		try {
 			per= jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
 			// Proceed with deposit logic using the 'person' object
-			System.out.println("Account found: " + person.toString());
+			System.out.println("Account found: ");
 
 			System.out.println("Enter Deposit ammount: ");
 			balance = scan.nextInt();
