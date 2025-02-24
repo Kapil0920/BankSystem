@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bank.entity.Person;
 import com.bank.entity.PersonRowMapper;
@@ -117,16 +118,13 @@ public class Operations implements OperationInterface {
 	// This is the sign-in method for existing users
 	@Override
 	public Person signIn(String name, String password, String gmail) {
-		
 		System.out.println("Enter your name ");
 		name = scan.nextLine();
-		person.setName(name);
 		System.out.println("Enter your password");
 		password = scan.nextLine();
-		person.setPassword(password);
 		System.out.println("Enter Your gmail");
 		gmail = scan.nextLine();
-		person.setGmail(gmail);
+		person.getAccountNum();
 		String query = "select * from bankuser where name=? and password=? and gmail=?";
 		RowMapper<Person> rowMap = new PersonRowMapper();
 		Person obj = jdbcTemplate.queryForObject(query, rowMap, name, password, gmail);
@@ -223,29 +221,39 @@ public class Operations implements OperationInterface {
 
 	// Method to deposit money into the user's account
 	public void deposit(Person per,double balance) {
+		String query = "update bankuser set balance = balance + ? where accountNum=?";
+
 		System.out.println("Enter account number");
 		long newDepositAccount = scan.nextLong(); // Get account number for deposit
 
-		String query = "update bankuser set balance = balance + ? where accountNum=?";
-
+		String accountNumQuery = "SELECT * FROM bankuser WHERE accountNum = ?";
 		RowMapper<Person> rowMap = new PersonRowMapper();
-
+		System.out.println("Account Number is: "+per.getAccountNum());
 		try {
-			per= jdbcTemplate.queryForObject(query, rowMap, newDepositAccount);
-			// Proceed with deposit logic using the 'person' object
-			System.out.println("Account found: ");
+			per= jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
+			
+			if(per.getAccountNum()!=newDepositAccount) {
+				System.err.println("Account NUmber not match ");
+			}
+			
+			else{
+				
+				System.out.println("Enter Deposit ammount: ");
+				balance = scan.nextInt();
+				jdbcTemplate.update(query, balance, newDepositAccount);
 
-			System.out.println("Enter Deposit ammount: ");
-			balance = scan.nextInt();
+				System.out.println("Succesfully deposit in account");
+				per.setBalance( per.getBalance()+balance);
+				}
+				
 			
-			jdbcTemplate.update(query, balance, newDepositAccount);
-			System.out.println("Succesfully deposit in account");
-			
-		} catch (EmptyResultDataAccessException e) {
+		} 
+		catch (EmptyResultDataAccessException e) {
 			System.err.println("No account found with the given account number.");
 		} catch (DataAccessException e) {
 			System.err.println("An error occurred while accessing the database: " + e.getMessage());
 		}
+		
 
 	}
 
@@ -254,14 +262,5 @@ public class Operations implements OperationInterface {
 		return passString.length() > 7; // Return true if the password length is greater than 7 characters
 	}
 
-	public void with(double balance) {
-		String query = "select * from bankuser where accountNum=?";
-		System.out.println("Account Number: ");
-		this.accountNum = scan.nextLong();
-
-		RowMapper<Person> rowMap = new PersonRowMapper();
-		Person obj = jdbcTemplate.queryForObject(query, rowMap);
-
-	}
-
+	
 }
