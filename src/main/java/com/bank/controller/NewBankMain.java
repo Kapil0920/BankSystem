@@ -33,10 +33,7 @@ public class NewBankMain {
 		if (signIn_SignUp.equalsIgnoreCase("In")) {
 			// Attempt to sign in the user with provided credentials
 			per=op.signIn(name, password, gmail);
-			// Check if the sign-in was successful
-//			if (per != null) {
 				signingIn(per);
-//			}
 				// Check if the user wants to sign up
 			} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
 				try {

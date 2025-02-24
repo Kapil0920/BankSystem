@@ -117,13 +117,16 @@ public class Operations implements OperationInterface {
 	// This is the sign-in method for existing users
 	@Override
 	public Person signIn(String name, String password, String gmail) {
+		
 		System.out.println("Enter your name ");
 		name = scan.nextLine();
+		person.setName(name);
 		System.out.println("Enter your password");
 		password = scan.nextLine();
+		person.setPassword(password);
 		System.out.println("Enter Your gmail");
 		gmail = scan.nextLine();
-		person.getAccountNum();
+		person.setGmail(gmail);
 		String query = "select * from bankuser where name=? and password=? and gmail=?";
 		RowMapper<Person> rowMap = new PersonRowMapper();
 		Person obj = jdbcTemplate.queryForObject(query, rowMap, name, password, gmail);
@@ -223,21 +226,21 @@ public class Operations implements OperationInterface {
 		System.out.println("Enter account number");
 		long newDepositAccount = scan.nextLong(); // Get account number for deposit
 
-		String accountNumQuery = "SELECT * FROM bankuser WHERE accountNum = ?";
+		String query = "update bankuser set balance = balance + ? where accountNum=?";
 
 		RowMapper<Person> rowMap = new PersonRowMapper();
 
 		try {
-			per= jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
+			per= jdbcTemplate.queryForObject(query, rowMap, newDepositAccount);
 			// Proceed with deposit logic using the 'person' object
 			System.out.println("Account found: ");
 
 			System.out.println("Enter Deposit ammount: ");
 			balance = scan.nextInt();
 			
-			String query = "update bankuser set balance = balance + ? where accountNum=?";
 			jdbcTemplate.update(query, balance, newDepositAccount);
 			System.out.println("Succesfully deposit in account");
+			
 		} catch (EmptyResultDataAccessException e) {
 			System.err.println("No account found with the given account number.");
 		} catch (DataAccessException e) {
