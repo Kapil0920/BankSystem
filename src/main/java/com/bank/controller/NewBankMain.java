@@ -1,4 +1,5 @@
 package com.bank.controller;
+//This is  SPRING_JDBC
 
 import java.util.Scanner;
 
@@ -10,7 +11,7 @@ import com.bank.configuration.BankConfiguration;
 import com.bank.entity.Person;
 import com.bank.entity.dao.Operations;
 import com.bank.exception.InvalidInputByUser;
-
+	
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
 	static String name = "null", password = "null", gmail = "null"; // Variables for user details
@@ -40,7 +41,7 @@ public class NewBankMain {
 			
 			} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
 				
-				try {
+//				try {
 					op.signUp(per); // Call the sign-up method
 
 					System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
@@ -54,10 +55,10 @@ public class NewBankMain {
 					}
 					
 				}
-
-				} catch (DuplicateKeyException e) {
-					e.printStackTrace();
-				}
+//
+//				} catch (DuplicateKeyException e) {
+//					e.printStackTrace();
+//				}
 
 			} else {
 				// If the input is neither "In" nor "Up", throw an exception
