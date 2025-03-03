@@ -18,7 +18,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.bank.entity.Person;
 import com.bank.entity.PersonRowMapper;
@@ -229,41 +228,45 @@ public class Operations implements OperationInterface {
 	}
 
 	// Method to deposit money into the user's account
+	
+	
+	
+	@Override
 	public void deposit(Person per, double balance) {
-		String query = "update bankuser set balance = balance + ? where accountNum=?";
+	    String query = "UPDATE bankuser SET balance = balance + ? WHERE accountNum = ?";
+	    String select = "SELECT accountNum FROM bankuser WHERE name = ? AND password = ? AND gmail = ?";
 
-		System.out.println("Enter account number");
-		long newDepositAccount = scan.nextLong(); // Get account number for deposit
+	    System.out.println("Enter account number");
+	    long newAccount = scan.nextLong(); // Get the account number for deposit
 
-		try {
-			String accountNumQuery = "SELECT * FROM bankuser WHERE accountNum = ?";
-			RowMapper<Person> rowMap = new PersonRowMapper();
-			System.out.println("Account Number is: " + per.getAccountNum());
+	    try {
+	        // Use parameterized queries to prevent SQL injection
+	        @SuppressWarnings("deprecation")
+			Long accountNum = jdbcTemplate.queryForObject(select, new Object[]{per.getName(), per.getPassword(), per.getGmail()}, Long.class);
 
-			per = jdbcTemplate.queryForObject(accountNumQuery, rowMap, newDepositAccount);
+	        // Check if the account number matches the one provided
+	        	if(accountNum ==newAccount) {
+	            System.out.println("Account Found.");
+	            System.out.println("Enter Deposit amount: ");
+	            balance = scan.nextDouble(); // Get deposit amount from user
 
-			if (per.getAccountNum() != newDepositAccount) {
-				System.err.println("Account NUmber not match ");
-			}
-
-			else {
-
-				System.out.println("Enter Deposit ammount: ");
-				balance = scan.nextInt();
-				jdbcTemplate.update(query, balance, newDepositAccount);
-
-				System.out.println("Succesfully deposit in account");
-				per.setBalance(per.getBalance() + balance);
-			}
-
-		} catch (EmptyResultDataAccessException e) {
-			System.err.println("No account found with the given account number.");
-		} catch (DataAccessException e) {
-			System.err.println("An error occurred while accessing the database: " + e.getMessage());
-		}
-
+	            // Update the balance in the database
+	            jdbcTemplate.update(query, balance, accountNum);
+	            System.out.println("Successfully deposited " + balance + " into account number " + accountNum);
+	        } 
+	        	else {
+	            System.err.println("Account number does not match or does not exist.");
+	        }
+	    } catch (EmptyResultDataAccessException e) {
+	        System.err.println("No matching account found for the provided credentials.");
+	    } catch (DataAccessException e) {
+	        System.err.println("An error occurred while accessing the database: " + e.getMessage());
+	    }
 	}
-
+	  
+	
+	
+	
 	// Method to check if the password length is valid
 	public boolean passwordLength(String passString) {
 		return passString.length() > 7; // Return true if the password length is greater than 7 characters

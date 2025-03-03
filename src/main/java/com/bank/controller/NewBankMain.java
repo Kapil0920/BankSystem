@@ -11,6 +11,7 @@ import com.bank.configuration.BankConfiguration;
 import com.bank.entity.Person;
 import com.bank.entity.dao.Operations;
 import com.bank.exception.InvalidInputByUser;
+import com.bank.exception.NoUserFoundsException;
 	
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
@@ -31,15 +32,13 @@ public class NewBankMain {
 		String signIn_SignUp = sc.next(); // Read user input for sign-in or sign-up
 
 		if (signIn_SignUp.equalsIgnoreCase("In")) {
-			
-			per=op.signIn(name, password, gmail);
-			if(per!=null) {
-				signingIn(per);
-			}
-			
-			
-			
-			} else if (signIn_SignUp.equalsIgnoreCase("Up")) {
+			// Attempt to sign in the user with provided credentials
+			per = op.signIn(name, password, gmail);
+
+			signingIn(per);
+		}
+
+		else if (signIn_SignUp.equalsIgnoreCase("Up")) {
 				
 //				try {
 					op.signUp(per); // Call the sign-up method
