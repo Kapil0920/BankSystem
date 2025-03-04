@@ -3,8 +3,6 @@ package com.bank.entity.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 import java.util.Scanner;
@@ -15,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import  org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -22,6 +21,8 @@ import org.springframework.stereotype.Component;
 import com.bank.entity.Person;
 import com.bank.entity.PersonRowMapper;
 import com.bank.exception.AccountNumberNotMatchException;
+
+
 @Component
 public class Operations implements OperationInterface {
 	// Random object to generate random account numbers
@@ -49,17 +50,6 @@ public class Operations implements OperationInterface {
 	}
 
 	// Static block to establish a database connection
-	static Connection conn;
-	static {
-		try {
-			// Establishing connection to the MySQL database
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/banking_system", "root", "root");
-		} catch (SQLException e) {
-			// Handle SQL exceptions
-			System.err.println("Error Occurred");
-			e.printStackTrace();
-		}
-	}
 
 	@Override
 	public void signUp(Person per) {
@@ -144,90 +134,118 @@ public class Operations implements OperationInterface {
 	// Method to withdraw money from the user's account
 	@Override
 	public double withdraw(Person person, double balance) {
-		try (PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")) {
-			System.out.println("Enter your account number for withdrawal: ");
-			long accountNum = scan.nextLong();
-			ps.setLong(1, accountNum); // Set the account number in the query
-			ResultSet rs = ps.executeQuery(); // Execute the query
-
-			// Check if the account number matches the user's account number
-			if (person.getAccountNum() != accountNum) {
-				try {
-					throw new AccountNumberNotMatchException(
-							"Account number is not correct, please check the account number first");
-				} catch (AccountNumberNotMatchException e) {
-					e.printStackTrace(); // Print stack trace for debugging
-				}
-			} else {
-				if (rs.next()) {
-					double currentBalance = rs.getDouble("balance"); // Fetch the balance from the database
-					System.out.println("Account found. Current balance: " + currentBalance);
-					System.out.println();
-
-					// Check if the balance is too low for a transaction
-					if (currentBalance < 100) {
-						System.out.println("Your balance is too low; you cannot do a transaction");
-					} else {
-						System.out.println("Enter withdrawal amount: ");
-						balance = scan.nextDouble();
-
-						// Check if withdrawal amount is greater than current balance
-						if (balance > currentBalance) {
-							System.out.println("Oops! It looks like you don't have enough funds for this withdrawal.");
-							return person.getBalance(); // Return current balance if withdrawal fails
-						}
-
-						// Proceed with withdrawal if enough balance
-						PreparedStatement ps1 = conn
-								.prepareStatement("update bankuser set balance = balance - ? where accountNum = ?");
-						ps1.setDouble(1, balance);
-						ps1.setLong(2, person.getAccountNum());
-						int rowsAffected = ps1.executeUpdate(); // Execute the update operation
-
-						// If the update was successful, update the person's balance
-						if (rowsAffected > 0) {
-							person.setBalance(person.getBalance() - balance); // Update the person's balance
-							System.out.println("Withdrawn: " + balance);
-						} else {
-							System.out.println("Error: Withdrawal could not be completed.");
-						}
+		String queryForShowBalance = "select balance from bankuser where accountNum=?";
+		String queryForUpdateBalance = "update bankuser set balance = balance - ? where accountNum = ?";
+		String queryForCheckAccountNumber = "select accountNum from bankuser where name =? And password=? And gmail=?";
+		
+		System.out.println("Enter Account Number For Withdrawal");
+		long accountNum = scan.nextLong();
+		
+		try {
+			
+		// For retrieving account number from database
+		Long IsAccountNumberPresent= jdbcTemplate.queryForObject(queryForCheckAccountNumber, Long.class,person.getName(),person.getPassword(),person.getGmail());
+		
+		if(IsAccountNumberPresent.equals(accountNum)) {
+			System.out.println("Account Number Match:");
+			
+			Double showBalance  = jdbcTemplate.queryForObject(queryForShowBalance, Double.class, accountNum);
+			
+				if(showBalance>1000) {
+					
+					System.out.println("You have "+showBalance);
+					
+					System.out.println("Enter Amount For WITHDRAW balance");
+					balance = scan.nextInt();
+					
+					if(balance>showBalance) {
+						System.err.println("InsufficientWithdrawRequestException");
+						System.out.println("Your Balance is lower than you want to withdraw");
+						return balance;
 					}
+					
+					jdbcTemplate.update(queryForUpdateBalance,balance,accountNum);
+					person.setBalance(showBalance-balance);
+	
+					System.out.println("Your left ammount is: "+person.getBalance());
+					
+					System.out.println("You've successfully done your transaction");
+				}
+				else {
+					System.err.println("Oops! Your Balance is too low: "+showBalance);
+					return balance;
 				}
 			}
-		} catch (SQLException e) {
-			e.printStackTrace(); // Print stack trace for debugging
-			System.err.println("Server error, sorry!!");
+			else {
+				throw new AccountNumberNotMatchException("AccountNumberNotMatchException");
+			}
 		}
-		return person.getBalance(); // Return the updated balance
+		catch(TransientDataAccessException e) {
+			e.printStackTrace();
+		}
+		catch(EmptyResultDataAccessException e) {
+			e.printStackTrace();
+		}
+		catch(AccountNumberNotMatchException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		return balance;
+		
 	}
 
+	
+	
+	
 	// Method to check the user's account balance
 	@Override
 	public void checkBalance(Person per, long accountNumber) {
-		try (PreparedStatement ps = conn.prepareStatement("select balance from bankuser where accountNum=?")) {
-			System.out.println("Enter the account number ");
-			accountNumber = scan.nextLong(); // Get account number from user
+		
+		String query = "select balance from bankuser where accountNum=?";
+		String queryForAccountNum = "SELECT accountNum FROM bankuser WHERE name = ? AND password = ? AND gmail = ?";
 
-			ps.setLong(1, accountNumber); // Set the account number in the query
-			ResultSet rs = ps.executeQuery(); // Execute the query
+		System.out.println("Enter Account Number For Check Balance");
+		accountNumber = scan.nextLong();
+		
 
-			// Check if the account number matches the user's account number
-			if (per.getAccountNum() == accountNumber && rs.next()) {
-				System.out.println("Account found");
-				System.out.println("Your account balance is: " + rs.getDouble("Balance")); // Display balance
-			} else {
-				try {
-					throw new AccountNumberNotMatchException("Account number doesn't match user data");
-				} catch (AccountNumberNotMatchException e) {
-					e.printStackTrace(); // Print stack trace for debugging
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace(); // Print stack trace for debugging
+
+		try {
+			
+			Long checkAccountNumber  = jdbcTemplate.queryForObject(queryForAccountNum, Long.class, per.getName(),per.getPassword(),per.getGmail());
+		
+			Double checkBalance=jdbcTemplate.queryForObject(query, Double.class, accountNumber);
+		
+		if(checkAccountNumber.equals( accountNumber)) {
+			System.out.println("Account Number Found.");
+			System.out.println("You have: "+checkBalance);
+			
 		}
-	}
+		else {
+			
+			throw new AccountNumberNotMatchException("AccountNumberNotMatchException");
+		}
+		
 
-	// Method to deposit money into the user's account
+		}
+		catch(TransientDataAccessException e) {
+			e.printStackTrace();
+		}
+		catch(EmptyResultDataAccessException e ) {
+			e.printStackTrace();
+		}
+		catch(AccountNumberNotMatchException e) {
+			e.printStackTrace();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
 	
 	
 	
@@ -243,7 +261,7 @@ public class Operations implements OperationInterface {
 	        // Use parameterized queries to prevent SQL injection
 	        @SuppressWarnings("deprecation")
 			Long accountNum = jdbcTemplate.queryForObject(select, new Object[]{per.getName(), per.getPassword(), per.getGmail()}, Long.class);
-
+	        System.out.println("Account Number is: "+accountNum);
 	        // Check if the account number matches the one provided
 	        	if(accountNum ==newAccount) {
 	            System.out.println("Account Found.");

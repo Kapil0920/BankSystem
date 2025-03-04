@@ -5,13 +5,11 @@ import java.util.Scanner;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.dao.DuplicateKeyException;
 
 import com.bank.configuration.BankConfiguration;
 import com.bank.entity.Person;
 import com.bank.entity.dao.Operations;
 import com.bank.exception.InvalidInputByUser;
-import com.bank.exception.NoUserFoundsException;
 	
 public class NewBankMain {
 	static Scanner sc = new Scanner(System.in); // Scanner object to read user input
@@ -40,7 +38,6 @@ public class NewBankMain {
 
 		else if (signIn_SignUp.equalsIgnoreCase("Up")) {
 				
-//				try {
 					op.signUp(per); // Call the sign-up method
 
 					System.out.println("Would you like to login in app\ntype \"yes\" for login otherwise \"no\"");
@@ -55,9 +52,6 @@ public class NewBankMain {
 					
 				}
 //
-//				} catch (DuplicateKeyException e) {
-//					e.printStackTrace();
-//				}
 
 			} else {
 				// If the input is neither "In" nor "Up", throw an exception
@@ -98,8 +92,9 @@ public class NewBankMain {
 		} else if (requestQuery.equalsIgnoreCase("w")) {
 			op.withdraw(person, balance); // Call the withdrawal method
 
+			
 		} else if (requestQuery.equalsIgnoreCase("check")) {
-			op.checkBalance(person, person.getAccountNum()); // Call the check balance method
+			op.checkBalance(person,accountNum); // Call the check balance method
 
 		} else {
 			try {
