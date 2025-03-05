@@ -3,6 +3,7 @@ package com.bank.entity.dao;
 //This is a Spring Boot component that handles banking operations
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -52,9 +53,22 @@ public class Operations implements OperationInterface {
 	// Method for user sign-up
 	@Override
 	public void signUp(Person per) {
-		System.out.println("Enter name: ");
+		while(true) {
+		System.out.println("Enter Name for Sign In: ");
+
 		String name = scan.nextLine();
-		per.setName(name); // Set the name in the Person object
+		per.setName(name.toLowerCase()); // Set the name in the Person object
+		
+
+		if(isValidName(name)) {
+			break;
+		}
+		else {
+			System.err.println("Name is not valid");
+		}
+		
+		}
+		
 
 		// Loop to ensure valid password length
 		while (true) {
@@ -76,7 +90,7 @@ public class Operations implements OperationInterface {
 		while (!gmail.contains("@") || !gmail.contains("gmail.com")) {
 			System.out.println("Please enter the valid Email id");
 			gmail = scan.nextLine();
-			per.setGmail(gmail);
+			per.setGmail(gmail.toLowerCase());
 		}
 
 		this.accountNum = random.nextLong(1000000000000000l, 9999999999999999l);
@@ -262,4 +276,10 @@ public class Operations implements OperationInterface {
 	public boolean passwordLength(String passString) {
 		return passString.length() > 7; // Return true if the password length is greater than 7 characters
 	}
+	
+	 public static boolean isValidName(String name) {
+	        // Regular expression to match a valid name (letters and spaces only, starts with a letter)
+	        String regex = "^[A-Za-z][A-Za-z\\s]{1,49}$";
+	        return name != null && Pattern.matches(regex, name);
+	    }
 }
